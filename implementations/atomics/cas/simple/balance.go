@@ -16,8 +16,8 @@ type AtomicCASSimpleBalance struct {
 }
 
 // New returns a zeroed AtomicCASSimpleBalance.
-func New() (*AtomicCASSimpleBalance, error) {
-	return &AtomicCASSimpleBalance{}, nil
+func New() *AtomicCASSimpleBalance {
+	return &AtomicCASSimpleBalance{}
 }
 
 // Balance returns the current value.

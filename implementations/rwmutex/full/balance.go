@@ -23,8 +23,8 @@ type RWMutexFullBalance struct {
 }
 
 // New returns a zeroed RWMutexFullBalance.
-func New() (*RWMutexFullBalance, error) {
-	return &RWMutexFullBalance{}, nil
+func New() *RWMutexFullBalance {
+	return &RWMutexFullBalance{}
 }
 
 // Balance returns the current value under a read lock.
@@ -52,7 +52,6 @@ func (b *RWMutexFullBalance) LastUpdated() int64 {
 func (b *RWMutexFullBalance) Add(amount int64) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-
 	b.value += amount
 	b.trx++
 	b.updated = time.Now().UnixNano()
@@ -62,7 +61,6 @@ func (b *RWMutexFullBalance) Add(amount int64) {
 func (b *RWMutexFullBalance) Subtract(amount int64) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-
 	if b.value-amount < 0 {
 		return ErrInsufficientFunds
 	}

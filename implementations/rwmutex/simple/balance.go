@@ -17,8 +17,8 @@ type RWMutexSimpleBalance struct {
 }
 
 // New constructs a zeroed RWMutexSimpleBalance.
-func New() (*RWMutexSimpleBalance, error) {
-	return &RWMutexSimpleBalance{}, nil
+func New() *RWMutexSimpleBalance {
+	return &RWMutexSimpleBalance{}
 }
 
 // Balance returns the current value under a read lock.

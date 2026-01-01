@@ -9,7 +9,7 @@ type Balance interface {
 	// TransactionCount reports how many mutating operations have been applied.
 	TransactionCount() int64
 
-	// LastUpdated returns a monotonic timestamp (nanoseconds) of the latest
+	// LastUpdated returns a timestamp (nanoseconds) of the latest
 	// successful mutation.
 	LastUpdated() int64
 

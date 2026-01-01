@@ -17,8 +17,8 @@ type AtomicBugsSimpleBalance struct {
 }
 
 // New creates a zeroed AtomicBugsSimpleBalance.
-func New() (*AtomicBugsSimpleBalance, error) {
-	return &AtomicBugsSimpleBalance{}, nil
+func New() *AtomicBugsSimpleBalance {
+	return &AtomicBugsSimpleBalance{}
 }
 
 // Balance returns the current value.

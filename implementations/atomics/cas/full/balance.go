@@ -21,8 +21,8 @@ type AtomicCASFullBalance struct {
 }
 
 // New creates a zeroed AtomicCASFullBalance.
-func New() (*AtomicCASFullBalance, error) {
-	return &AtomicCASFullBalance{}, nil
+func New() *AtomicCASFullBalance {
+	return &AtomicCASFullBalance{}
 }
 
 // Balance returns the current value.

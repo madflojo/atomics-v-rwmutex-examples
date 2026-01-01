@@ -9,6 +9,8 @@ import (
 	atomicbugssimple "github.com/madflojo/atomics-v-rwmutex-examples/implementations/atomics/bugs/simple"
 	atomiccasfull "github.com/madflojo/atomics-v-rwmutex-examples/implementations/atomics/cas/full"
 	atomiccassimple "github.com/madflojo/atomics-v-rwmutex-examples/implementations/atomics/cas/simple"
+	mutexfull "github.com/madflojo/atomics-v-rwmutex-examples/implementations/mutex/full"
+	mutexsimple "github.com/madflojo/atomics-v-rwmutex-examples/implementations/mutex/simple"
 	rwmutexfull "github.com/madflojo/atomics-v-rwmutex-examples/implementations/rwmutex/full"
 	rwmutexsimple "github.com/madflojo/atomics-v-rwmutex-examples/implementations/rwmutex/simple"
 
@@ -17,89 +19,54 @@ import (
 
 func TestBalanceImplementations(t *testing.T) {
 	testCases := []struct {
-		name       string
-		newBalance func(testing.TB) Balance
-		hasMeta    bool
-		expectBug  bool
+		name      string
+		balance   Balance
+		hasMeta   bool
+		expectBug bool
 	}{
 		{
-			name: "Atomic Balance (bugs/simple)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := atomicbugssimple.New()
-				if err != nil {
-					tb.Fatalf("failed to create atomic balance: %v", err)
-				}
-				return a
-			},
+			name:      "Atomic Balance (bugs/simple)",
+			balance:   atomicbugssimple.New(),
 			hasMeta:   false,
 			expectBug: true,
 		},
 		{
-			name: "Atomic Balance (bugs/full)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := atomicbugsfull.New()
-				if err != nil {
-					tb.Fatalf("failed to create atomic balance: %v", err)
-				}
-				return a
-			},
+			name:      "Atomic Balance (bugs/full)",
+			balance:   atomicbugsfull.New(),
 			hasMeta:   true,
 			expectBug: true,
 		},
 		{
-			name: "Atomic Balance (CAS/simple)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := atomiccassimple.New()
-				if err != nil {
-					tb.Fatalf("failed to create atomic balance: %v", err)
-				}
-				return a
-			},
+			name:      "Atomic Balance (CAS/simple)",
+			balance:   atomiccassimple.New(),
 			hasMeta:   false,
 			expectBug: false,
 		},
 		{
-			name: "Atomic Balance (CAS/full)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := atomiccasfull.New()
-				if err != nil {
-					tb.Fatalf("failed to create atomic balance: %v", err)
-				}
-				return a
-			},
+			name:      "Atomic Balance (CAS/full)",
+			balance:   atomiccasfull.New(),
 			hasMeta:   true,
 			expectBug: false,
 		},
 		{
-			name: "Mutex Balance (simple)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := rwmutexsimple.New()
-				if err != nil {
-					tb.Fatalf("failed to create mutex balance: %v", err)
-				}
-				return a
-			},
+			name:      "RWMutex Balance (simple)",
+			balance:   rwmutexsimple.New(),
 			hasMeta:   false,
 			expectBug: false,
 		},
 		{
-			name: "Mutex Balance (full)",
-			newBalance: func(tb testing.TB) Balance {
-				tb.Helper()
-				a, err := rwmutexfull.New()
-				if err != nil {
-					tb.Fatalf("failed to create mutex balance: %v", err)
-				}
-				return a
-			},
+			name:      "RWMutex Balance (full)",
+			balance:   rwmutexfull.New(),
 			hasMeta:   true,
 			expectBug: false,
 		},
+		{
+			name:      "Mutex Balance (simple)",
+			balance:   mutexsimple.New(),
+			hasMeta:   false,
+			expectBug: false,
+		},
+		{name: "Mutex Balance (full)", balance: mutexfull.New(), hasMeta: true, expectBug: false},
 	}
 
 	for _, tc := range testCases {
@@ -107,7 +74,7 @@ func TestBalanceImplementations(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Helper()
 
-			acct := tc.newBalance(t)
+			acct := tc.balance
 			bal := counter.New()
 			trx := counter.New()
 
@@ -160,7 +127,11 @@ func TestBalanceImplementations(t *testing.T) {
 					}
 
 					if acct.Balance() != bal.Value() {
-						t.Fatalf("balance mismatch after deposits, got %d want %d", acct.Balance(), bal.Value())
+						t.Fatalf(
+							"balance mismatch after deposits, got %d want %d",
+							acct.Balance(),
+							bal.Value(),
+						)
 					}
 
 					if tc.hasMeta {
@@ -183,7 +154,11 @@ func TestBalanceImplementations(t *testing.T) {
 					}
 
 					if acct.Balance() != bal.Value() {
-						t.Fatalf("balance mismatch after withdrawals, got %d want %d", acct.Balance(), bal.Value())
+						t.Fatalf(
+							"balance mismatch after withdrawals, got %d want %d",
+							acct.Balance(),
+							bal.Value(),
+						)
 					}
 
 					if tc.hasMeta {
@@ -266,7 +241,10 @@ func TestBalanceImplementations(t *testing.T) {
 
 				if tc.expectBug {
 					if acct.Balance() >= 0 {
-						t.Fatalf("expected buggy implementation to go negative, got %d", acct.Balance())
+						t.Fatalf(
+							"expected buggy implementation to go negative, got %d",
+							acct.Balance(),
+						)
 					}
 					if failCount == 0 {
 						t.Fatalf("expected at least one subtract failure")
@@ -279,7 +257,11 @@ func TestBalanceImplementations(t *testing.T) {
 				}
 
 				if acct.Balance() != bal.Value() {
-					t.Fatalf("balance mismatch after concurrent subtracts, got %d want %d", acct.Balance(), bal.Value())
+					t.Fatalf(
+						"balance mismatch after concurrent subtracts, got %d want %d",
+						acct.Balance(),
+						bal.Value(),
+					)
 				}
 
 				if failCount == 0 {
@@ -298,12 +280,20 @@ func TestBalanceImplementations(t *testing.T) {
 				}
 
 				if acct.Balance() != prevBal {
-					t.Fatalf("balance changed after failed subtract, got %d want %d", acct.Balance(), prevBal)
+					t.Fatalf(
+						"balance changed after failed subtract, got %d want %d",
+						acct.Balance(),
+						prevBal,
+					)
 				}
 
 				if tc.hasMeta {
 					if acct.TransactionCount() != prevTrx {
-						t.Fatalf("transaction count changed after failed subtract, got %d want %d", acct.TransactionCount(), prevTrx)
+						t.Fatalf(
+							"transaction count changed after failed subtract, got %d want %d",
+							acct.TransactionCount(),
+							prevTrx,
+						)
 					}
 					if acct.LastUpdated() != prevUpdate {
 						t.Fatalf("last updated changed after failed subtract")
@@ -321,7 +311,11 @@ func TestBalanceImplementations(t *testing.T) {
 			if tc.hasMeta {
 				t.Run("transaction counter", func(t *testing.T) {
 					if acct.TransactionCount() != trx.Value() {
-						t.Fatalf("transaction counter mismatch, got %d want %d", acct.TransactionCount(), trx.Value())
+						t.Fatalf(
+							"transaction counter mismatch, got %d want %d",
+							acct.TransactionCount(),
+							trx.Value(),
+						)
 					}
 				})
 			}

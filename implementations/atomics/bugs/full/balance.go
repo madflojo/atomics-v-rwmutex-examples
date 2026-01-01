@@ -21,8 +21,8 @@ type AtomicBugsFullBalance struct {
 }
 
 // New constructs a zeroed AtomicBugsFullBalance.
-func New() (*AtomicBugsFullBalance, error) {
-	return &AtomicBugsFullBalance{}, nil
+func New() *AtomicBugsFullBalance {
+	return &AtomicBugsFullBalance{}
 }
 
 // Balance returns the current value.
