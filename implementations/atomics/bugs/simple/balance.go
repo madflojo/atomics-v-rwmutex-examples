@@ -13,7 +13,7 @@ var ErrInsufficientFunds = errors.New("insufficient funds")
 // tracks its value, making it easy to demonstrate race conditions.
 type AtomicBugsSimpleBalance struct {
 	// value stores the raw account balance.
-	value int64
+	value atomic.Int64
 }
 
 // New creates a zeroed AtomicBugsSimpleBalance.
@@ -23,7 +23,7 @@ func New() *AtomicBugsSimpleBalance {
 
 // Balance returns the current value.
 func (b *AtomicBugsSimpleBalance) Balance() int64 {
-	return atomic.LoadInt64(&b.value)
+	return b.value.Load()
 }
 
 // TransactionCount always reports zero because the simple implementation
@@ -39,18 +39,18 @@ func (b *AtomicBugsSimpleBalance) LastUpdated() int64 {
 
 // Add increments the value atomically.
 func (b *AtomicBugsSimpleBalance) Add(amount int64) {
-	atomic.AddInt64(&b.value, amount)
+	b.value.Add(amount)
 }
 
 // Subtract decrements the value without CAS protection, intentionally
 // leaving room for lost updates under contention.
 func (b *AtomicBugsSimpleBalance) Subtract(amount int64) error {
-	current := atomic.LoadInt64(&b.value)
+	current := b.value.Load()
 	time.Sleep(100 * time.Microsecond)
 	if current-amount < 0 {
 		return ErrInsufficientFunds
 	}
 
-	atomic.AddInt64(&b.value, -amount)
+	b.value.Add(-amount)
 	return nil
 }

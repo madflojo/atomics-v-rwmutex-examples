@@ -12,7 +12,7 @@ var ErrInsufficientFunds = errors.New("insufficient funds")
 // ensure atomic read-modify-write semantics.
 type AtomicCASSimpleBalance struct {
 	// value stores the running balance.
-	value int64
+	value atomic.Int64
 }
 
 // New returns a zeroed AtomicCASSimpleBalance.
@@ -22,7 +22,7 @@ func New() *AtomicCASSimpleBalance {
 
 // Balance returns the current value.
 func (b *AtomicCASSimpleBalance) Balance() int64 {
-	return atomic.LoadInt64(&b.value)
+	return b.value.Load()
 }
 
 // TransactionCount always returns zero because the simple variant does
@@ -38,19 +38,19 @@ func (b *AtomicCASSimpleBalance) LastUpdated() int64 {
 
 // Add increments the balance using atomic addition.
 func (b *AtomicCASSimpleBalance) Add(amount int64) {
-	atomic.AddInt64(&b.value, amount)
+	b.value.Add(amount)
 }
 
 // Subtract decrements the balance while guaranteeing the update via CAS.
 func (b *AtomicCASSimpleBalance) Subtract(amount int64) error {
 	for {
-		current := atomic.LoadInt64(&b.value)
+		current := b.value.Load()
 		next := current - amount
 		if next < 0 {
 			return ErrInsufficientFunds
 		}
 
-		if atomic.CompareAndSwapInt64(&b.value, current, next) {
+		if b.value.CompareAndSwap(current, next) {
 			return nil
 		}
 	}
