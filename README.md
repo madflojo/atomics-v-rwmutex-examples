@@ -8,7 +8,7 @@ Atomic, RWMutex, and Mutex balances—side-by-side Go examples with tests and be
 ---
 
 ## 🧠 What is atomics-v-rwmutex-examples?
-A tiny playground showing several Go balance implementations—naïve atomics, CAS‑protected atomics, an RWMutex wrapper, and a standard Mutex wrapper—along with the tests/benchmarks that surfaced their differences for the accompanying blog post over at [madflojo.dev](https://madflojo.dev/posts/atomic-operations-better-and-faster-than-a-mutex-it-depends/).
+A tiny playground showing several Go balance implementations—naïve atomics, CAS‑protected atomics, an RWMutex wrapper, and a standard Mutex wrapper—along with the tests/benchmarks that surfaced their differences for the accompanying blog post over at [madflojo.dev](https://madflojo.dev/posts/are-atomic-operations-faster-than-a-mutex-it-depends/).
 
 - Compare implementation complexity and correctness risks without reading walls of theory.
 - Run the test suite (including race-y scenarios) to watch the “atomic bugs” version misbehave.
